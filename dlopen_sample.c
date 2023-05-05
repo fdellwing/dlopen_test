@@ -6,7 +6,7 @@
 int main(int argc, char **argv) {
   void *handle1;
   void *handle2;
-  void (*func_print_path)(const char *);
+  void (*func_foobar)();
 
   handle1 = dlopen("./B/libfoo.so", RTLD_LAZY);
   if (!handle1) {
@@ -19,6 +19,16 @@ int main(int argc, char **argv) {
     fprintf(stderr, "Error: %s\n", dlerror());
     return EXIT_FAILURE;
   }
+
+  *(void **)(&func_foobar) = dlsym(handle2, "foobar");
+  if (!func_foobar) {
+    /* no such symbol */
+    fprintf(stderr, "Error: %s\n", dlerror());
+    dlclose(handle2);
+    return EXIT_FAILURE;
+  }
+
+  func_foobar();
 
   dlclose(handle1);
   dlclose(handle2);
